@@ -23,11 +23,11 @@ struct graph {
 
 adrNode createVertex(string newVertex);
 adrEdge createEdge(string destVertexID, int weight);
+adrNode findVertex(graph G, string vertexID);
+adrEdge findEdge(graph G, string sourceVertexID, string destVertexID);
 void initGraph(graph &G);
 void addVertex(graph &G, string newVertexID);
 void addEdge(graph &G, string sourceVertexID, string destVertexID, int weight); //ikut ppt
-adrNode findVertex(graph G, string vertexID);
-adrEdge findEdge(graph G, string sourceVertexID, string destVertexID);
 void deleteVertex(graph &G, string vertexID);
 void deleteEdge(graph &G, string sourceVertexID, string destVertexID);
 void shortestPath(graph G, string startID, string endID);
