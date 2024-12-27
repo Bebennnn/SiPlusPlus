@@ -22,7 +22,7 @@ struct graph {
 };
 
 adrNode createVertex(string newVertex);
-adrVertex createEdge(string destVertexID, int weight);
+adrEdge createEdge(string destVertexID, int weight);
 void initGraph(graph &G);
 void addVertex(graph &G, string newVertexID);
 void addEdge(graph &G, string sourceVertexID, string destVertexID, int weight); //ikut ppt
