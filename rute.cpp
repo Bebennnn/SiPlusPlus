@@ -68,3 +68,195 @@ void addJalan(graph &G, string sourceGedungID, string destGedungID, int bobot) {
         firstJalan(sourceGedung) = newJalan;
     }
 }
+void JalanTerpendek(graph G, string startID, string endID) {
+    adrGedung startGedung = findGedung(G, startID);
+    adrGedung endGedung = findGedung(G, endID);
+
+    if (startGedung == NULL || endGedung == NULL) {
+        cout << "Error: Gedung tidak ditemukan" << endl;
+        return;
+    }
+
+    adrGedung current = firstGedung(G);
+    while (current != NULL) {
+        current->jarak = INT_MAX;
+        current->dikunjungi = false;
+        current->tracking = NULL;
+        current = nextGedung(current);
+    }
+
+    startGedung->jarak = 0;
+
+    while (true) {
+        adrGedung minGedung = NULL;
+        int minJarak = INT_MAX;
+
+        current = firstGedung(G);
+        while (current != NULL) {
+            if (!current->dikunjungi && current->jarak < minJarak) {
+                minGedung = current;
+                minJarak = current->jarak;
+            }
+            current = nextGedung(current);
+        }
+
+        if (minGedung == NULL || minGedung == endGedung) break;
+
+        minGedung->dikunjungi = true;
+        adrJalan jalan = firstJalan(minGedung);
+        while (jalan != NULL) {
+            adrGedung tetangga = findGedung(G, destGedung(jalan));
+            if (tetangga != NULL && !tetangga->dikunjungi) {
+                int jarakBaru = minGedung->jarak + bobotJalan(jalan);
+                if (jarakBaru < tetangga->jarak) {
+                    tetangga->jarak = jarakBaru;
+                    tetangga->tracking = minGedung;
+                }
+            }
+            jalan = nextJalan(jalan);
+        }
+    }
+
+    if (endGedung->jarak == INT_MAX) {
+        cout << "Tidak ada jalur dari " << startID << " ke " << endID << "." << endl;
+        return;
+    }
+
+    cout << "Jarak terpendek dari " << startID << " ke " << endID << ": " << endGedung->jarak << endl;
+    cout << "Jalur: ";
+
+    adrGedung traverse = endGedung;
+    string jalur = "";
+    while (traverse != NULL) {
+        jalur = infoGedung(traverse) + (jalur.empty() ? "" : " -> ") + jalur;
+        traverse = traverse->tracking;
+    }
+    cout << jalur << endl;
+}
+
+void buildGraph(graph &G) {
+    initGraph(G);
+
+    addGedung(G, "Rektorat");
+    addGedung(G, "Asrama Putra");
+    addGedung(G, "TULT");
+    addGedung(G, "BTP");
+    addGedung(G, "TUCH");
+    addGedung(G, "MSU");
+    addGedung(G, "GKU1");
+
+    addJalan(G, "Rektorat", "Asrama Putra", 100);
+    addJalan(G, "Asrama Putra", "TULT", 30);
+    addJalan(G, "Asrama Putra", "BTP", 70);
+    addJalan(G, "BTP", "TUCH", 80);
+    addJalan(G, "TUCH", "MSU", 100);
+    addJalan(G, "MSU", "GKU1", 50);
+    addJalan(G, "GKU1", "Rektorat", 40);
+}
+
+void showGraph(graph G) {
+    adrGedung gedung = firstGedung(G);
+    while (gedung != NULL) {
+        cout << "Gedung: " << infoGedung(gedung) << endl;
+        adrJalan jalan = firstJalan(gedung);
+        while (jalan != NULL) {
+            cout << "  -> " << destGedung(jalan) << " (bobot: " << bobotJalan(jalan) << ")" << endl;
+            jalan = nextJalan(jalan);
+        }
+        gedung = nextGedung(gedung);
+    }
+}
+
+void printGedungDenganCabangTerbanyak(graph G) {
+    adrGedung gedung = firstGedung(G);
+    adrGedung maxGedung = NULL;
+    int maxCabang = 0;
+
+    while (gedung != NULL) {
+        int jumlahCabang = 0;
+        adrJalan jalan = firstJalan(gedung);
+        while (jalan != NULL) {
+            jumlahCabang++;
+            jalan = nextJalan(jalan);
+        }
+        if (jumlahCabang > maxCabang) {
+            maxCabang = jumlahCabang;
+            maxGedung = gedung;
+        }
+        gedung = nextGedung(gedung);
+    }
+
+    if (maxGedung != NULL) {
+        cout << "Gedung dengan cabang terbanyak: " << infoGedung(maxGedung) << " (" << maxCabang << " cabang)" << endl;
+    } else {
+        cout << "Tidak ada gedung yang ditemukan." << endl;
+    }
+}
+
+void CariJalanAlternatif(graph G, string startID, string endID, string avoidID) {
+    adrGedung startGedung = findGedung(G, startID);
+    adrGedung endGedung = findGedung(G, endID);
+    adrGedung avoidGedung = findGedung(G, avoidID);
+
+    if (startGedung == NULL || endGedung == NULL || avoidGedung == NULL) {
+        cout << "Error: Gedung tidak ditemukan" << endl;
+        return;
+    }
+
+    adrGedung current = firstGedung(G);
+    while (current != NULL) {
+        current->jarak = INT_MAX;
+        current->dikunjungi = false;
+        current->tracking = NULL;
+        current = nextGedung(current);
+    }
+
+    startGedung->jarak = 0;
+
+    while (true) {
+        adrGedung minGedung = NULL;
+        int minJarak = INT_MAX;
+
+        current = firstGedung(G);
+        while (current != NULL) {
+            if (!current->dikunjungi && current->jarak < minJarak && current != avoidGedung) {
+                minGedung = current;
+                minJarak = current->jarak;
+            }
+            current = nextGedung(current);
+        }
+
+        if (minGedung == NULL || minGedung == endGedung) break;
+        minGedung->dikunjungi = true;
+
+        adrJalan jalan = firstJalan(minGedung);
+        while (jalan != NULL) {
+            adrGedung tetangga = findGedung(G, destGedung(jalan));
+            if (tetangga != NULL && !tetangga->dikunjungi && tetangga != avoidGedung) {
+                int jarakBaru = minGedung->jarak + bobotJalan(jalan);
+                if (jarakBaru < tetangga->jarak) {
+                    tetangga->jarak = jarakBaru;
+                    tetangga->tracking = minGedung;
+                }
+            }
+            jalan = nextJalan(jalan);
+        }
+    }
+
+    if (endGedung->jarak == INT_MAX) {
+        cout << "Tidak ada jalan alternatif dari " << startID << " ke " << endID << " menghindari " << avoidID << "." << endl;
+        return;
+    }
+
+    cout << "Jarak terpendek alternatif dari " << startID << " ke " << endID << " menghindari " << avoidID << ": " << endGedung->jarak << endl;
+    cout << "Rute: ";
+
+    adrGedung traverse = endGedung;
+    string rute = "";
+    while (traverse != NULL) {
+        rute = infoGedung(traverse) + (rute.empty() ? "" : " -> ") + rute;
+        traverse = traverse->tracking;
+    }
+
+    cout << rute << endl;
+}
