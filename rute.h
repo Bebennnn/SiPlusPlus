@@ -38,14 +38,13 @@ struct graph {
 adrGedung createGedung(string newGedung);
 adrJalan createJalan(string destGedung, int bobot);
 adrGedung findGedung(graph G, string gedungID);
-adrJalan findJalan(graph G, string sourceGedungID, string destGedungID);
-void initGraph(graph &G);
 void addGedung(graph &G, string newGedungID);
 void addJalan(graph &G, string sourceGedungID, string destGedungID, int bobot);
-void JalanTerpendek(graph G, string startID, string endID);
-void CariJalanAlternatif(graph G, string startID, string endID, string avoidID);
+void initGraph(graph &G);
 void buildGraph(graph &G);
 void showGraph(graph G);
+void JalanTerpendek(graph G, string startID, string endID);
+void CariJalanAlternatif(graph G, string startID, string endID, string avoidID);
 void printGedungDenganCabangTerbanyak(graph G);
 
 #endif // RUTE_H_INCLUDED
